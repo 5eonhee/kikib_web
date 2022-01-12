@@ -1,23 +1,42 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoLogin from '../assets/Drawables/logo_login.png';
 import styled, { createGlobalStyle } from 'styled-components';
 import bgLogin from '../assets/Drawables/img_bg_login.png';
 import DefaultFont from '../assets/font/agothic14.otf';
 import { device } from './Devices';
+import { useCookies } from 'react-cookie';
 // import { useNavigate } from 'react-router-dom';
 // import { configs } from '../config/config';
 
 const Login = () => {
   const [inputId, setId] = useState('');
   const [inputPw, setPw] = useState('');
+  const [isRemember, setIsRemember] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(['rememberId']);
+
+  useEffect(() => {
+    if (cookies.rememberId !== undefined) {
+      setId(cookies.rememberId);
+      setIsRemember(true);
+    }
+  }, [cookies]);
 
   const handleId = (e) => {
     setId(e.currentTarget.value);
   };
   const handlePw = (e) => {
     setPw(e.currentTarget.value);
+  };
+
+  const handleOnRemember = (e) => {
+    setIsRemember(e.target.checked);
+    if (e.target.checked) {
+      setCookie('rememberId', inputId);
+    } else {
+      removeCookie('rememberId');
+    }
   };
 
   // const navigate = useNavigate();
@@ -85,7 +104,7 @@ const Login = () => {
           <IntArea>
             <InputArea
               type="text"
-              value={inputId}
+              value={inputId || ''}
               onChange={handleId}
               required
             />
@@ -94,12 +113,20 @@ const Login = () => {
           <IntArea>
             <InputArea
               type="password"
-              value={inputPw}
+              value={inputPw || ''}
               onChange={handlePw}
               required
             />
             <IntLabel htmlFor="id">비밀번호</IntLabel>
           </IntArea>
+          <RememberIdLabel>
+            <RemeberIdCheckbox
+              type="checkbox"
+              checked={isRemember}
+              onChange={(e) => handleOnRemember(e)}
+            />
+            ID 저장하기
+          </RememberIdLabel>
           <BtnArea>
             <BtnAreaButton onClick={onClickLogin}>
               키키버스 계정으로 로그인
@@ -234,6 +261,7 @@ let IntArea = styled.div`
   min-width: 300px;
   position: relative;
   margin-top: 60px;
+  margin-bottom: 20px;
   :first-child {
     margin-top: 80px;
   }
@@ -270,6 +298,7 @@ let IntLabel = styled.label`
   color: #fff;
   transition: all 0.5s ease;
   text-transform: lowercase;
+
   @media ${device.desktop} {
     font-size: 28px
     left: 10px;
@@ -280,8 +309,21 @@ let IntLabel = styled.label`
     left: 15px;
     top: 30px;
   }
-
 `;
+
+let RememberIdLabel = styled.label`
+  position: relative;
+  padding: 20px;
+  color: white;
+  font-size: 30px;
+`;
+
+let RemeberIdCheckbox = styled.input`
+  position: relative;
+  margin-right: 20px;
+  transform: scale(2);
+`;
+
 let BtnArea = styled.div`
   @media ${device.desktop} {
     margin-top: 30px;
